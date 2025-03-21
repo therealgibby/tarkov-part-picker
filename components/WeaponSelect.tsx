@@ -17,9 +17,15 @@ export default function WeaponSelect() {
 		});
 	}, []);
 
-	async function handleWeaponChange(event: ChangeEvent<HTMLSelectElement>) {
-		const weaponInfo = await getWeaponInfo(event.target.value);
-		if (weaponInfo) setSelectedWeapon(weaponInfo);
+	async function handleWeaponSelect(event: ChangeEvent<HTMLSelectElement>) {
+		const newWeaponSelectionId = event.target.value;
+
+		if (newWeaponSelectionId === "none") setSelectedWeapon(null);
+
+		if (!selectedWeapon || selectedWeapon.id !== newWeaponSelectionId) {
+			const weaponInfo = await getWeaponInfo(newWeaponSelectionId);
+			if (weaponInfo) setSelectedWeapon(weaponInfo);
+		}
 	}
 
 	return (
@@ -27,7 +33,7 @@ export default function WeaponSelect() {
 			<h2 className="text-3xl font-bold mt-10">Create Gun Build</h2>
 			<select
 				className="w-2xl mt-10 bg-none border-gray-400 border-2 rounded-md px-1 py-0.5 outline-none"
-				onChange={handleWeaponChange}
+				onChange={handleWeaponSelect}
 				defaultValue="none"
 			>
 				<option value="none" className="bg-black">
