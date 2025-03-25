@@ -1,29 +1,26 @@
 "use client";
 
-import { getWeaponInfo, getWeapons, Weapon } from "@/lib/weapons";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import WeaponInfo from "./WeaponInfo";
+import { Weapon } from "@/lib/weapons";
 
-export default function WeaponSelect() {
-	const [weaponsList, setWeaponsList] = useState<Weapon[]>([]);
+type Props = {
+	weapons: Weapon[];
+};
+
+export default function WeaponSelect({ weapons }: Props) {
 	const [selectedWeapon, setSelectedWeapon] = useState<Weapon | null>(null);
-
-	useEffect(() => {
-		getWeapons().then((weapons) => {
-			weapons.sort((weapon, nextWeapon) =>
-				weapon.name > nextWeapon.name ? 1 : -1
-			);
-			setWeaponsList(weapons);
-		});
-	}, []);
 
 	async function handleWeaponSelect(event: ChangeEvent<HTMLSelectElement>) {
 		const newWeaponSelectionId = event.target.value;
 
-		if (newWeaponSelectionId === "none") setSelectedWeapon(null);
+		if (newWeaponSelectionId === "none") {
+			setSelectedWeapon(null);
+			return;
+		}
 
 		if (!selectedWeapon || selectedWeapon.id !== newWeaponSelectionId) {
-			const weaponInfo = await getWeaponInfo(newWeaponSelectionId);
+			const weaponInfo = await fetchWeaponInfo(newWeaponSelectionId);
 			if (weaponInfo) setSelectedWeapon(weaponInfo);
 		}
 	}
@@ -39,8 +36,8 @@ export default function WeaponSelect() {
 				<option value="none" className="bg-black">
 					Select a weapon...
 				</option>
-				{weaponsList &&
-					weaponsList.map((weapon) => {
+				{weapons &&
+					weapons.map((weapon) => {
 						return (
 							<option
 								key={weapon.id}
@@ -55,4 +52,16 @@ export default function WeaponSelect() {
 			{selectedWeapon && <WeaponInfo weapon={selectedWeapon} />}
 		</div>
 	);
+}
+
+async function fetchWeaponInfo(weaponId: string): Promise<Weapon | null> {
+	return await fetch(`${process.env.NEXT_PUBLIC_URL}/api/weapons/${weaponId}`)
+		.then((response) => {
+			if (response.ok) return response.json();
+			return response.json().then((json) => Promise.reject(json));
+		})
+		.catch((error) => {
+			console.log(error.error);
+			return null;
+		});
 }

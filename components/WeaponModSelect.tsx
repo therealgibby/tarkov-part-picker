@@ -1,6 +1,6 @@
 "use client";
 
-import { getWeaponModInfo, WeaponMod } from "@/lib/weapons";
+import { WeaponMod } from "@/lib/weapons";
 import { ChangeEvent, useState } from "react";
 
 type Props = {
@@ -24,10 +24,13 @@ export default function WeaponModSelect({ slot }: Props) {
 	async function handleModSelect(event: ChangeEvent<HTMLSelectElement>) {
 		const newModSelectionId = event.target.value;
 
-		if (newModSelectionId === "none") setSelectedMod(null);
+		if (newModSelectionId === "none") {
+			setSelectedMod(null);
+			return;
+		}
 
 		if (!selectedMod || selectedMod.id !== newModSelectionId) {
-			const modInfo = await getWeaponModInfo(event.target.value);
+			const modInfo = await fetchWeaponModInfo(newModSelectionId);
 			setSelectedMod(modInfo);
 		}
 	}
@@ -81,4 +84,16 @@ export default function WeaponModSelect({ slot }: Props) {
 			)}
 		</div>
 	);
+}
+
+async function fetchWeaponModInfo(modId: string): Promise<WeaponMod | null> {
+	return await fetch(`${process.env.NEXT_PUBLIC_URL}/api/mods/${modId}`)
+		.then((response) => {
+			if (response.ok) return response.json();
+			return response.json().then((json) => Promise.reject(json));
+		})
+		.catch((error) => {
+			console.log(error.error);
+			return null;
+		});
 }

@@ -1,11 +1,14 @@
 "use server";
 
 import WeaponInfo from "@/components/WeaponSelect";
+import { getWeapons } from "@/lib/weapons";
 
 export default async function Home() {
+	const weaponsList = await getWeapons();
+
 	return (
 		<div className="max-w-[1200px] mx-auto pb-32">
-			<WeaponInfo />
+			<WeaponInfo weapons={weaponsList} />
 		</div>
 	);
 }
