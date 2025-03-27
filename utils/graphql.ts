@@ -1,6 +1,7 @@
 import {
 	ItemPropertiesWeapon,
 	ItemPropertiesWeaponMod,
+	VendorBuyOffer,
 	Weapon,
 	WeaponMod,
 } from "@/lib/weapons";
@@ -50,5 +51,6 @@ export interface Item {
 	name: string;
 	iconLink: string;
 	wikiLink: string;
+	buyFor: VendorBuyOffer[];
 	properties: ItemPropertiesWeapon | ItemPropertiesWeaponMod;
 }

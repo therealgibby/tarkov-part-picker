@@ -51,11 +51,36 @@ export async function getWeaponInfo(
 					name
 					iconLink
 					wikiLink
+					buyFor {
+						currency
+						price
+						vendor {
+							name
+							... on TraderOffer {
+								minTraderLevel
+								normalizedName
+							}
+							... on FleaMarket {
+								normalizedName
+							}
+						}
+					}
 					properties {
 						... on ItemPropertiesWeapon {
 							caliber
 							defaultPreset {
 									imageLink
+									buyFor {
+										currency
+										price
+										vendor {
+											name
+											normalizedName
+											... on TraderOffer {
+												minTraderLevel
+											}
+										}
+									}
 								}
 							slots {
 								id
@@ -146,18 +171,16 @@ export interface ItemPropertiesWeapon {
 	caliber: string;
 	defaultPreset: {
 		imageLink: string;
+		buyFor: VendorBuyOffer[];
 	};
 	slots: {
 		id: string;
 		name: string;
 		required: boolean;
 		filters: {
-			allowedItems: {
-				id: string;
-				name: string;
-				iconLink: string;
-			}[];
+			allowedItems: WeaponMod[];
 		};
+		selectedMod?: WeaponMod;
 	}[];
 }
 
@@ -171,11 +194,18 @@ export interface ItemPropertiesWeaponMod {
 		name: string;
 		required: boolean;
 		filters: {
-			allowedItems: {
-				id: string;
-				name: string;
-				iconLink: string;
-			}[];
+			allowedItems: WeaponMod[];
 		};
+		selectedMod?: WeaponMod;
 	}[];
 }
+
+export type VendorBuyOffer = {
+	currency: string;
+	price: number;
+	vendor: {
+		name: string;
+		normalizedName: string;
+		minTraderLevel?: number;
+	};
+};
