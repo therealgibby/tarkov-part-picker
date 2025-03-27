@@ -1,28 +1,12 @@
 import { serverCache } from "@/utils/cache";
+import {
+	fetchGraphQL,
+	Item,
+	WeaponModResponse,
+	WeaponResponse,
+	WeaponsResponse,
+} from "@/utils/graphql";
 import "server-only";
-
-async function fetchGraphQL<T>(
-	query: string
-): Promise<GraphQLResponse<T> | null> {
-	return fetch("https://api.tarkov.dev/graphql", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			"Accept": "application/json",
-		},
-		body: JSON.stringify({ query }),
-	})
-		.then(async (response) => {
-			return response.json().catch((jsonError) => {
-				console.log(jsonError);
-				return null;
-			});
-		})
-		.catch((requestError) => {
-			console.log(requestError);
-			return null;
-		});
-}
 
 export async function getWeapons(): Promise<Weapon[]> {
 	const allWeaponsId = "all-weapons";
@@ -40,6 +24,9 @@ export async function getWeapons(): Promise<Weapon[]> {
 
 		if (!response || response.errors) return [];
 
+		response.data.items.sort((weapon, nextWeapon) =>
+			weapon.name.localeCompare(nextWeapon.name)
+		);
 		serverCache.set(allWeaponsId, response.data.items, 1200);
 	}
 
@@ -147,35 +134,6 @@ export async function getWeaponModInfo(
 	return serverCache.get(modItemId);
 }
 
-interface GraphQLResponse<T> {
-	data: T;
-	errors?: any[];
-}
-
-interface WeaponsResponse {
-	items: Weapon[];
-}
-
-interface WeaponResponse {
-	item: Weapon;
-}
-
-interface WeaponModsResponse {
-	items: WeaponMod[];
-}
-
-interface WeaponModResponse {
-	item: WeaponMod;
-}
-
-interface Item {
-	id: string;
-	name: string;
-	iconLink: string;
-	wikiLink: string;
-	properties: ItemPropertiesWeapon | ItemPropertiesWeaponMod;
-}
-
 export interface Weapon extends Item {
 	properties: ItemPropertiesWeapon;
 }
@@ -184,7 +142,7 @@ export interface WeaponMod extends Item {
 	properties: ItemPropertiesWeaponMod;
 }
 
-interface ItemPropertiesWeapon {
+export interface ItemPropertiesWeapon {
 	caliber: string;
 	defaultPreset: {
 		imageLink: string;
@@ -203,7 +161,7 @@ interface ItemPropertiesWeapon {
 	}[];
 }
 
-interface ItemPropertiesWeaponMod {
+export interface ItemPropertiesWeaponMod {
 	ergonomics: number;
 	recoil: number;
 	recoilModifier: number;
