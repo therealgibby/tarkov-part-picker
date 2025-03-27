@@ -34,27 +34,40 @@ export default function WeaponInfo({ weapon }: Props) {
 					<div>
 						<span className="font-bold">Base Price: </span>
 						<div className="ml-4">
-							{weapon.buyFor.map((buyOffer) => {
-								if (
-									weapon.buyFor.length === 1 &&
-									buyOffer.vendor.normalizedName ===
+							{weapon.buyFor.length > 0 ? (
+								weapon.buyFor.map((buyOffer) => {
+									if (
+										weapon.buyFor.length === 1 &&
+										buyOffer.vendor.normalizedName ===
+											"flea-market"
+									) {
+										return (
+											<p
+												key={
+													buyOffer.vendor
+														.normalizedName
+												}
+											>
+												N/A
+											</p>
+										);
+									} else if (
+										buyOffer.vendor.normalizedName ===
 										"flea-market"
-								) {
-									return <>N/A</>;
-								} else if (
-									buyOffer.vendor.normalizedName ===
-									"flea-market"
-								) {
-									return;
-								}
+									) {
+										return;
+									}
 
-								return (
-									<BuyOfferView
-										key={buyOffer.vendor.normalizedName}
-										buyOffer={buyOffer}
-									/>
-								);
-							})}
+									return (
+										<BuyOfferView
+											key={buyOffer.vendor.normalizedName}
+											buyOffer={buyOffer}
+										/>
+									);
+								})
+							) : (
+								<>N/A</>
+							)}
 						</div>
 					</div>
 					{/* Default Preset Prices */}
@@ -79,6 +92,7 @@ export default function WeaponInfo({ weapon }: Props) {
 						</div>
 					)}
 				</div>
+				{/* Default Preset Image */}
 				{weapon.properties.defaultPreset && (
 					<Image
 						src={weapon.properties.defaultPreset.imageLink}
@@ -101,11 +115,12 @@ export default function WeaponInfo({ weapon }: Props) {
 
 function BuyOfferView({ buyOffer }: { buyOffer: VendorBuyOffer }) {
 	return (
-		<p className="w-[200px]">
+		<p>
 			<span>
-				{buyOffer.vendor.name}{" "}
+				{buyOffer.vendor.name}
 				{buyOffer.vendor.minTraderLevel && (
 					<span>
+						{" "}
 						LL
 						{buyOffer.vendor.minTraderLevel}
 					</span>
