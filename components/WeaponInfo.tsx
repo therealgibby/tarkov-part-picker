@@ -30,7 +30,7 @@ export default function WeaponInfo({ weapon }: Props) {
 							Link
 						</a>
 					</p>
-					{/* Base Weapon Part Prices */}
+					{/* Base Weapon Prices */}
 					<div>
 						<span className="font-bold">Base Price: </span>
 						<div className="ml-4">
@@ -103,7 +103,7 @@ export default function WeaponInfo({ weapon }: Props) {
 					/>
 				)}
 			</div>
-			<p className="font-bold mt-8">Required *</p>
+			<p className="font-bold mt-8">Mods ( Required * )</p>
 			<div className="w-full flex flex-col gap-8 items-start mt-6">
 				{weapon.properties.slots.map((slot) => {
 					return <WeaponModSelect key={slot.id} slot={slot} />;

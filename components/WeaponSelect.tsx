@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import WeaponInfo from "./WeaponInfo";
 import { Weapon } from "@/lib/weapons";
 
@@ -10,18 +10,29 @@ type Props = {
 
 export default function WeaponSelect({ weapons }: Props) {
 	const [selectedWeapon, setSelectedWeapon] = useState<Weapon | null>(null);
+	const configuredWeapon = useRef<Weapon | null>(null);
 
 	async function handleWeaponSelect(event: ChangeEvent<HTMLSelectElement>) {
-		const newWeaponSelectionId = event.target.value;
+		const weaponIndex = event.target.value;
 
-		if (newWeaponSelectionId === "none") {
+		if (weaponIndex === "none") {
 			setSelectedWeapon(null);
 			return;
 		}
 
-		if (!selectedWeapon || selectedWeapon.id !== newWeaponSelectionId) {
-			const weaponInfo = await fetchWeaponInfo(newWeaponSelectionId);
-			if (weaponInfo) setSelectedWeapon(weaponInfo);
+		if (isStringInteger(weaponIndex)) {
+			const intWeaponIndex = parseInt(weaponIndex);
+			if (intWeaponIndex < 0 || intWeaponIndex >= weapons.length) return;
+
+			const weaponInfo = await fetchWeaponInfo(
+				weapons[intWeaponIndex].id
+			);
+			if (weaponInfo) {
+				setSelectedWeapon(weaponInfo);
+				configuredWeapon.current = {
+					...weaponInfo,
+				};
+			}
 		}
 	}
 
@@ -37,12 +48,12 @@ export default function WeaponSelect({ weapons }: Props) {
 					Select a weapon...
 				</option>
 				{weapons &&
-					weapons.map((weapon) => {
+					weapons.map((weapon, index) => {
 						return (
 							<option
 								key={weapon.id}
 								className="bg-black"
-								value={weapon.id}
+								value={index}
 							>
 								{weapon.name}
 							</option>
@@ -64,4 +75,15 @@ async function fetchWeaponInfo(weaponId: string): Promise<Weapon | null> {
 			console.log(error.error);
 			return null;
 		});
+}
+
+function isStringInteger(str: string): boolean {
+	if (typeof str !== "string") {
+		return false;
+	}
+	if (str.trim() === "") {
+		return false;
+	}
+
+	return /^-?\d+$/.test(str);
 }
